@@ -1,0 +1,39 @@
+services:
+  prime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: prime:latest
+    container_name: prime
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: "jdbc:sqlite:/data/prime.db?foreign_keys=on&date_string_format=yyyy-MM-dd"
+    ports:
+      - "8888:8888"
+    volumes:
+      - prime-sqlite-data:/data
+
+  postgres:
+    image: postgres:18
+    container_name: prime-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: prime
+      POSTGRES_USER: prime
+      POSTGRES_PASSWORD: prime_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - prime-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prime -d prime"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  prime-sqlite-data:
+    name: prime-sqlite-data
+  prime-postgres-data:
+    name: prime-postgres-data

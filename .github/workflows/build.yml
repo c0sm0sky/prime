@@ -1,0 +1,35 @@
+name: Prime
+
+on:
+  push:
+    branches: [main]
+    tags: ['0.*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  maven:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [wildfly, docker, springboot]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build and test ${{ matrix.profile }} profile
+        run: mvn --batch-mode --no-transfer-progress -P${{ matrix.profile }} verify
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build Prime Docker image
+        run: docker build --tag prime:ci .

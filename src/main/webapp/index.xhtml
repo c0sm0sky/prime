@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:p="http://primefaces.org/ui" xmlns:ui="jakarta.faces.facelets">
+  <h:head>
+    <title>Prime</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <h:outputStylesheet library="css" name="app.css"/>
+  </h:head>
+  <h:body styleClass="#{loginView.loggedIn ? '' : 'login-page'}">
+    <p:outputPanel id="appContent" layout="block">
+      <h:panelGroup layout="block" rendered="#{not loginView.loggedIn}">
+        <ui:include src="/login-content.xhtml"/>
+      </h:panelGroup>
+      <h:panelGroup layout="block" rendered="#{loginView.loggedIn}">
+        <ui:include src="/dashboard-content.xhtml"/>
+      </h:panelGroup>
+    </p:outputPanel>
+  </h:body>
+</html>

@@ -1,0 +1,221 @@
+<?xml version="1.0"?>
+<ui:composition xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:p="http://primefaces.org/ui" xmlns:f="jakarta.faces.core">
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="./">
+        <span class="brand-mark small">V</span>
+        <b>prime<span>.</span></b>
+      </a>
+      <div class="nav-label">MENU G&#x141;&#xD3;WNE</div>
+      <a class="nav active" href="./">&#x25A6; <span>Przegl&#x105;d</span></a>
+      <div class="sidebar-bottom">
+        <div class="avatar">A</div>
+        <div class="profile">
+          <b>Prime</b>
+          <small>prime@prime.pl</small>
+        </div>
+        <h:form>
+          <p:commandLink action="#{loginView.logout}" process="@this" update=":appContent" styleClass="logout" title="Wyloguj">&#x2197;</p:commandLink>
+        </h:form>
+      </div>
+    </aside>
+    <main class="content">
+      <header class="topbar">
+        <span>Panel / <b>Przegl&#x105;d</b></span>
+        <span class="top-user">&#x25CF; <b>Prime</b></span>
+      </header>
+      <section class="welcome">
+        <div>
+          <p class="eyebrow">PANEL ZARZ&#x104;DZANIA</p>
+          <h1>Dzie&#x144; dobry &#x1F44B;</h1>
+          <p class="muted">Klienci, zam&#xF3;wienia i przychody w jednym miejscu.</p>
+        </div>
+        <span class="date-chip">&#x25F7; &#xA0; Panel na &#x17C;ywo</span>
+      </section>
+      <p:outputPanel id="statsPanel" layout="block">
+        <div class="stats">
+          <div class="stat">
+            <span>Wszyscy klienci</span>
+            <b>#{dashboardView.customerCount}</b>
+            <small>Rekordy w bazie</small>
+          </div>
+          <div class="stat">
+            <span>Zam&#xF3;wienia</span>
+            <b>#{dashboardView.orderCount}</b>
+            <small>Rekordy w bazie</small>
+          </div>
+          <div class="stat">
+            <span>&#x141;&#x105;czny przych&#xF3;d</span>
+            <b>#{dashboardView.revenueTotal}</b>
+            <small>Suma zapisanych wp&#x142;yw&#xF3;w</small>
+          </div>
+        </div>
+      </p:outputPanel>
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Baza danych</h2>
+            <p class="muted">Zarz&#x105;dzaj klientami, zam&#xF3;wieniami i przychodami.</p>
+          </div>
+        </div>
+        <p:tabView id="tabView">
+          <p:tab title="Klienci">
+            <h:form id="customersForm">
+              <p:messages id="customerMessages" closable="true"/>
+              <div class="table-head">
+                <div>
+                  <h3>Lista klient&#xF3;w</h3>
+                  <span class="muted">#{dashboardView.customers.size()} rekord&#xF3;w</span>
+                </div>
+                <div class="add-row">
+                  <p:inputText id="customerName" value="#{dashboardView.customerName}" placeholder="Imi&#x119; i nazwisko" required="true" requiredMessage="Podaj nazw&#x119; klienta." maxlength="255"/>
+                  <p:inputText id="customerEmail" value="#{dashboardView.customerEmail}" placeholder="Adres e-mail" required="true" requiredMessage="Podaj adres e-mail." validatorMessage="Podaj prawid&#x142;owy adres e-mail.">
+                    <f:validateLength maximum="255"/>
+                    <f:validateRegex pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$"/>
+                  </p:inputText>
+                  <p:commandButton value="&#xFF0B; Dodaj klienta" action="#{dashboardView.addCustomer}" process="@form" update=":tabView:customersForm :tabView:ordersForm :tabView:revenuesForm :statsPanel" styleClass="primary"/>
+                </div>
+              </div>
+              <p:dataTable id="customerTable" value="#{dashboardView.customers}" var="row" emptyMessage="Brak klient&#xF3;w">
+                <p:column headerText="KLIENT">
+                  <b>#{row.name}</b>
+                </p:column>
+                <p:column headerText="E-MAIL">#{row.email}</p:column>
+                <p:column headerText="STATUS">
+                  <span class="status">#{row.status.label}</span>
+                </p:column>
+                <p:column headerText="" styleClass="actions-column">
+                  <p:menuButton value="" icon="pi pi-ellipsis-v" styleClass="row-menu">
+                    <p:menuitem value="Edytuj" icon="pi pi-pencil" action="#{dashboardView.beginEditCustomer(row)}" process="@this" update=":editForm" oncomplete="PF('editDialog').show()"/>
+                    <p:menuitem value="Usu&#x144;" icon="pi pi-trash" action="#{dashboardView.deleteCustomer(row.id)}" process="@this" update=":tabView:customersForm :tabView:ordersForm :tabView:revenuesForm :statsPanel"/>
+                  </p:menuButton>
+                </p:column>
+              </p:dataTable>
+            </h:form>
+          </p:tab>
+          <p:tab title="Zam&#xF3;wienia">
+            <h:form id="ordersForm">
+              <p:messages id="orderMessages" closable="true"/>
+              <div class="table-head">
+                <div>
+                  <h3>Lista zam&#xF3;wie&#x144;</h3>
+                  <span class="muted">#{dashboardView.orders.size()} rekord&#xF3;w</span>
+                </div>
+                <div class="add-row">
+                  <p:inputText id="orderName" value="#{dashboardView.orderName}" placeholder="Nazwa zam&#xF3;wienia" required="true" requiredMessage="Podaj nazw&#x119; zam&#xF3;wienia." maxlength="255"/>
+                  <p:selectOneMenu id="orderCustomerId" value="#{dashboardView.orderCustomerId}" required="true" requiredMessage="Wybierz klienta zam&#xF3;wienia.">
+                    <f:selectItem itemLabel="Wybierz klienta" itemValue="" noSelectionOption="true"/>
+                    <f:selectItems value="#{dashboardView.customers}" var="customer" itemValue="#{customer.id}" itemLabel="#{customer.name} &#xB7; #{customer.email}"/>
+                  </p:selectOneMenu>
+                  <p:commandButton value="&#xFF0B; Dodaj zam&#xF3;wienie" action="#{dashboardView.addOrder}" process="@form" update=":tabView:ordersForm :tabView:revenuesForm :statsPanel" styleClass="primary"/>
+                </div>
+              </div>
+              <p:dataTable id="orderTable" value="#{dashboardView.orders}" var="row" emptyMessage="Brak zam&#xF3;wie&#x144;">
+                <p:column headerText="ZAM&#xD3;WIENIE">
+                  <b>#{row.name}</b>
+                </p:column>
+                <p:column headerText="KLIENT">#{row.customerName}</p:column>
+                <p:column headerText="STATUS">
+                  <span class="status">#{row.status.label}</span>
+                </p:column>
+                <p:column headerText="" styleClass="actions-column">
+                  <p:menuButton value="" icon="pi pi-ellipsis-v" styleClass="row-menu">
+                    <p:menuitem value="Edytuj" icon="pi pi-pencil" action="#{dashboardView.beginEditOrder(row)}" process="@this" update=":editForm" oncomplete="PF('editDialog').show()"/>
+                    <p:menuitem value="Usu&#x144;" icon="pi pi-trash" action="#{dashboardView.deleteOrder(row.id)}" process="@this" update=":tabView:ordersForm :tabView:revenuesForm :statsPanel"/>
+                  </p:menuButton>
+                </p:column>
+              </p:dataTable>
+            </h:form>
+          </p:tab>
+          <p:tab title="Przychody">
+            <h:form id="revenuesForm">
+              <p:messages id="revenueMessages" closable="true"/>
+              <div class="table-head">
+                <div>
+                  <h3>Rejestr przychod&#xF3;w</h3>
+                  <span class="muted">#{dashboardView.revenues.size()} rekord&#xF3;w</span>
+                </div>
+                <div class="add-row">
+                  <p:selectOneMenu id="revenueOrderId" value="#{dashboardView.revenueOrderId}" required="true" requiredMessage="Wybierz zam&#xF3;wienie dla przychodu.">
+                    <f:selectItem itemLabel="Wybierz zam&#xF3;wienie" itemValue="" noSelectionOption="true"/>
+                    <f:selectItems value="#{dashboardView.orders}" var="order" itemValue="#{order.id}" itemLabel="#{order.name} &#xB7; #{order.customerName}"/>
+                  </p:selectOneMenu>
+                  <p:inputNumber id="revenueAmount" value="#{dashboardView.revenueAmount}" placeholder="Kwota" required="true" requiredMessage="Podaj kwot&#x119; przychodu." decimalPlaces="2" minValue="0.01" symbol=" z&#x142;" symbolPosition="s"/>
+                  <p:commandButton value="&#xFF0B; Dodaj przych&#xF3;d" action="#{dashboardView.addRevenue}" process="@form" update=":tabView:revenuesForm :statsPanel" styleClass="primary"/>
+                </div>
+              </div>
+              <p:dataTable id="revenueTable" value="#{dashboardView.revenues}" var="row" emptyMessage="Brak przychod&#xF3;w">
+                <p:column headerText="ZAM&#xD3;WIENIE">
+                  <b>#{row.orderName ne null ? row.orderName : row.description}</b>
+                </p:column>
+                <p:column headerText="KLIENT">#{row.customerName ne null ? row.customerName : '&#x2014;'}</p:column>
+                <p:column headerText="KWOTA">#{dashboardView.formatCurrency(row.amount)}</p:column>
+                <p:column headerText="DATA">#{dashboardView.formatDate(row.receivedOn)}</p:column>
+                <p:column headerText="" styleClass="actions-column">
+                  <p:menuButton value="" icon="pi pi-ellipsis-v" styleClass="row-menu">
+                    <p:menuitem value="Edytuj" icon="pi pi-pencil" action="#{dashboardView.beginEditRevenue(row)}" process="@this" update=":editForm" oncomplete="PF('editDialog').show()"/>
+                    <p:menuitem value="Usu&#x144;" icon="pi pi-trash" action="#{dashboardView.deleteRevenue(row.id)}" process="@this" update=":tabView:revenuesForm :statsPanel"/>
+                  </p:menuButton>
+                </p:column>
+              </p:dataTable>
+            </h:form>
+          </p:tab>
+        </p:tabView>
+        <p:dialog id="editDialog" widgetVar="editDialog" header="Edytuj rekord" modal="true" resizable="false" styleClass="edit-dialog">
+          <h:form id="editForm">
+            <p:messages id="editMessages"/>
+            <h:panelGroup layout="block" rendered="#{dashboardView.editType eq 'customer'}">
+              <div class="field">
+                <p:outputLabel for="editName" value="Nazwa"/>
+                <p:inputText id="editName" value="#{dashboardView.editName}" required="true"/>
+              </div>
+              <div class="field">
+                <p:outputLabel for="editDetail" value="E-mail"/>
+                <p:inputText id="editDetail" value="#{dashboardView.editDetail}" required="true" requiredMessage="Podaj adres e-mail." validatorMessage="Podaj prawid&#x142;owy adres e-mail.">
+                  <f:validateLength maximum="255"/>
+                  <f:validateRegex pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$"/>
+                </p:inputText>
+              </div>
+            </h:panelGroup>
+            <h:panelGroup layout="block" rendered="#{dashboardView.editType eq 'order'}">
+              <div class="field">
+                <p:outputLabel for="editOrderName" value="Nazwa zam&#xF3;wienia"/>
+                <p:inputText id="editOrderName" value="#{dashboardView.editName}" required="true"/>
+              </div>
+              <div class="field">
+                <p:outputLabel for="editCustomerId" value="Klient"/>
+                <p:selectOneMenu id="editCustomerId" value="#{dashboardView.editCustomerId}" required="true">
+                  <f:selectItems value="#{dashboardView.customers}" var="customer" itemValue="#{customer.id}" itemLabel="#{customer.name} &#xB7; #{customer.email}"/>
+                </p:selectOneMenu>
+              </div>
+            </h:panelGroup>
+            <h:panelGroup layout="block" styleClass="field" rendered="#{dashboardView.editType eq 'revenue'}">
+              <p:outputLabel for="editOrderId" value="Zam&#xF3;wienie"/>
+              <p:selectOneMenu id="editOrderId" value="#{dashboardView.editOrderId}" required="true">
+                <f:selectItems value="#{dashboardView.orders}" var="order" itemValue="#{order.id}" itemLabel="#{order.name} &#xB7; #{order.customerName}"/>
+              </p:selectOneMenu>
+            </h:panelGroup>
+            <h:panelGroup layout="block" styleClass="field" rendered="#{dashboardView.editType eq 'revenue'}">
+              <p:outputLabel for="editRevenueAmount" value="Kwota (PLN)"/>
+              <p:inputNumber id="editRevenueAmount" value="#{dashboardView.editRevenueAmount}" required="true" requiredMessage="Podaj kwot&#x119; przychodu." decimalPlaces="2" minValue="0.01" symbol=" z&#x142;" symbolPosition="s"/>
+            </h:panelGroup>
+            <h:panelGroup layout="block" styleClass="field" rendered="#{dashboardView.editType eq 'customer'}">
+              <p:outputLabel for="editStatus" value="Status"/>
+              <p:selectOneMenu id="editStatus" value="#{dashboardView.editCustomerStatus}" required="true">
+                <f:selectItems value="#{dashboardView.customerStatuses}" var="status" itemValue="#{status}" itemLabel="#{status.label}"/>
+              </p:selectOneMenu>
+            </h:panelGroup>
+            <h:panelGroup layout="block" styleClass="field" rendered="#{dashboardView.editType eq 'order'}">
+              <p:outputLabel for="editOrderStatus" value="Status"/>
+              <p:selectOneMenu id="editOrderStatus" value="#{dashboardView.editOrderStatus}" required="true">
+                <f:selectItems value="#{dashboardView.orderStatuses}" var="status" itemValue="#{status}" itemLabel="#{status.label}"/>
+              </p:selectOneMenu>
+            </h:panelGroup>
+            <p:commandButton value="Zapisz zmiany" actionListener="#{dashboardView.saveEdit}" update="editMessages :tabView:customersForm :tabView:ordersForm :tabView:revenuesForm :statsPanel" oncomplete="if (!args.validationFailed) PF('editDialog').hide()" styleClass="primary"/>
+          </h:form>
+        </p:dialog>
+      </section>
+      <footer>&#xA9; 2026 Prime &#xB7; Panel Prime</footer>
+    </main>
+  </div>
+</ui:composition>

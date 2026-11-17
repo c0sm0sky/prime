@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ui:composition xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:p="http://primefaces.org/ui" xmlns:f="jakarta.faces.core">
+  <main class="login-card">
+    <div class="brand-mark">V</div>
+    <p class="eyebrow">PANEL PRIME</p>
+    <h1>Witaj ponownie</h1>
+    <p class="muted">Zaloguj si&#x119;, aby przej&#x15B;&#x107; do swojego panelu.</p>
+    <h:form>
+      <p:messages closable="true"/>
+      <h:outputText value="#{loginView.error}" styleClass="error"/>
+      <div class="field">
+        <p:outputLabel for="user" value="Login"/>
+        <p:inputText id="user" value="#{loginView.username}" placeholder="np. prime" required="true"/>
+      </div>
+      <div class="field">
+        <p:outputLabel for="pass" value="Has&#x142;o"/>
+        <p:password id="pass" value="#{loginView.password}" placeholder="Wpisz has&#x142;o" required="true" feedback="false"/>
+      </div>
+      <p:commandButton value="Zaloguj si&#x119;" action="#{loginView.login}" process="@form" update=":appContent" styleClass="primary full"/>
+    </h:form>
+    <div class="demo-hint">Konto demonstracyjne <b>prime</b> / <b>prime123</b></div>
+  </main>
+</ui:composition>
